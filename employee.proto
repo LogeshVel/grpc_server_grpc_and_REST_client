@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/LogeshVel/grpc_server_grpc_and_REST_client/proto/emp";
+
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+      version: "1.0";
+    };
+    external_docs: {
+      url: "https://github.com/LogeshVel/grpc_server_grpc_and_REST_client";
+      description: "gRPC Server - gRPC and REST clients";
+    }
+    schemes: HTTPS;
+  };
+
+message Contact{
+    string home_addr = 1;
+    string mob_num = 2;
+    string mail_id = 3;
+}
+
+message Employee{
+    string id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string role = 4;
+    Contact contact = 5;
+}
+
+message EmployeeID{
+    string id = 1;
+}
+
+message UpdateEmpRequest {
+    Employee emp = 1;
+    google.protobuf.FieldMask update_mask = 2;
+  }
+
+service EmployeeManagement{
+    // get the Employee details by providing the employee ID
+    // Returns Status.NOT_FOUND if the ID doesn't match any Employee
+    rpc getEmployee(EmployeeID) returns (Employee){
+        option (google.api.http) = {
+            get: "/v1/emp/{id}" // HTTP GET with this path(id here represents the id field of the input message) returns emp details of that id
+          };
+          option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get an employee"
+            description: "Get an employee for the given ID"
+            tags: "Employee"
+          };
+    }
+
+    // List all the employees. It taks empty request type
+    rpc listEmployees(google.protobuf.Empty) returns (stream Employee){
+        option (google.api.http) = {
+            get: "/v1/emps" // HTTP GET with this path returns all the employees
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get all employees"
+            description: "Get all employees from the Server"
+            tags: "Employee"
+          };
+    }
+    
+    // Create an emplyee by providing the Employee Details and returns the Employee ID
+    // Returns Status.INTERNAL if the Employee is not able to create
+    // Reutrns Status.AlreadyExists if the id already exists
+    rpc createEmployee(Employee) returns (EmployeeID){
+        option (google.api.http) = {
+            post: "/v1/emp" // HTTP POST with this path and the body creates the new employee and returns the ID
+            body: "*" // * in the body represents all the fields in the input message type. Here Employee is the input type so all the fields will comes in the body of this request.
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Create an employee"
+            description: "Create an employee"
+            tags: "Employee"
+          };
+    }
+
+    // Update an Employee by providing all the inforation again and returns empty
+    // Returns Status.NOT_FOUND if the ID doesn't match any Employee
+    // Returns Status.INTERNAL if the Employee is not able to update
+    rpc updateEmployee(Employee) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            put: "/v1/emp/{id}" // HTTP PUT with this update and body updates the existing employee (major update need the entire details)
+            body: "*" // * represents all the fields of the input message to be provide in the body
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Update an employee"
+            description: "Update an employee by providing all the details again"
+            tags: "Employee"
+          };
+    }
+
+    // Updates only the field we mention while calling this RPC
+    // Returns Status.NOT_FOUND if the ID doesn't match any Employee
+    rpc patchEmployee(UpdateEmpRequest) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            patch: "/v1/emp/{emp.id}" // HTTP PATCH for some minor updates for that employee, need to provide the field that need to update
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Patch an employee"
+            description: "Patch an employee for the given ID"
+            tags: "Employee"
+          };
+    }
+
+    // Delete the Employee by providing the Employee ID and empty response is returned
+    // Returns Status.NOT_FOUND if the ID doesn't match any Employee
+    // Returns Status.INTERNAL if the Employee is not able to delete
+    rpc deleteEmployee(EmployeeID) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            delete: "/v1/emp/{id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Delete an employee"
+            description: "Delete an employee for the given ID"
+            tags: "Employee"
+          };
+    }
+}
