@@ -55,7 +55,7 @@ func main() {
 	}
 
 	gwmux := runtime.NewServeMux()
-	// Register Greeter
+	// Register Employee
 	err = pb.RegisterEmployeeManagementHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
