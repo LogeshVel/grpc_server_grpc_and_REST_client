@@ -26,6 +26,7 @@ type EmployeeManagementClient interface {
 	// get the Employee details by providing the employee ID
 	// Returns Status.NOT_FOUND if the ID doesn't match any Employee
 	GetEmployee(ctx context.Context, in *EmployeeID, opts ...grpc.CallOption) (*Employee, error)
+	GetEmployeeByQP(ctx context.Context, in *EmployeeID, opts ...grpc.CallOption) (*Employee, error)
 	// List all the employees. It taks empty request type
 	ListEmployees(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (EmployeeManagement_ListEmployeesClient, error)
 	// Create an emplyee by providing the Employee Details and returns the Employee ID
@@ -56,6 +57,15 @@ func NewEmployeeManagementClient(cc grpc.ClientConnInterface) EmployeeManagement
 func (c *employeeManagementClient) GetEmployee(ctx context.Context, in *EmployeeID, opts ...grpc.CallOption) (*Employee, error) {
 	out := new(Employee)
 	err := c.cc.Invoke(ctx, "/EmployeeManagement/getEmployee", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *employeeManagementClient) GetEmployeeByQP(ctx context.Context, in *EmployeeID, opts ...grpc.CallOption) (*Employee, error) {
+	out := new(Employee)
+	err := c.cc.Invoke(ctx, "/EmployeeManagement/getEmployeeByQP", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,6 +147,7 @@ type EmployeeManagementServer interface {
 	// get the Employee details by providing the employee ID
 	// Returns Status.NOT_FOUND if the ID doesn't match any Employee
 	GetEmployee(context.Context, *EmployeeID) (*Employee, error)
+	GetEmployeeByQP(context.Context, *EmployeeID) (*Employee, error)
 	// List all the employees. It taks empty request type
 	ListEmployees(*emptypb.Empty, EmployeeManagement_ListEmployeesServer) error
 	// Create an emplyee by providing the Employee Details and returns the Employee ID
@@ -163,6 +174,9 @@ type UnimplementedEmployeeManagementServer struct {
 
 func (UnimplementedEmployeeManagementServer) GetEmployee(context.Context, *EmployeeID) (*Employee, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEmployee not implemented")
+}
+func (UnimplementedEmployeeManagementServer) GetEmployeeByQP(context.Context, *EmployeeID) (*Employee, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEmployeeByQP not implemented")
 }
 func (UnimplementedEmployeeManagementServer) ListEmployees(*emptypb.Empty, EmployeeManagement_ListEmployeesServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListEmployees not implemented")
@@ -206,6 +220,24 @@ func _EmployeeManagement_GetEmployee_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EmployeeManagementServer).GetEmployee(ctx, req.(*EmployeeID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EmployeeManagement_GetEmployeeByQP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmployeeID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EmployeeManagementServer).GetEmployeeByQP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/EmployeeManagement/getEmployeeByQP",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EmployeeManagementServer).GetEmployeeByQP(ctx, req.(*EmployeeID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -313,6 +345,10 @@ var EmployeeManagement_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getEmployee",
 			Handler:    _EmployeeManagement_GetEmployee_Handler,
+		},
+		{
+			MethodName: "getEmployeeByQP",
+			Handler:    _EmployeeManagement_GetEmployeeByQP_Handler,
 		},
 		{
 			MethodName: "createEmployee",

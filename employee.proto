@@ -56,6 +56,17 @@ service EmployeeManagement{
           };
     }
 
+    rpc getEmployeeByQP(EmployeeID) returns (Employee){
+      option (google.api.http) = {
+          get: "/v1/emp" // HTTP GET with this path(id should be provide in the Query param) returns emp details of that id
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+          summary: "Get an employee"
+          description: "Get an employee for the given ID"
+          tags: "Employee"
+        };
+  }
+
     // List all the employees. It taks empty request type
     rpc listEmployees(google.protobuf.Empty) returns (stream Employee){
         option (google.api.http) = {

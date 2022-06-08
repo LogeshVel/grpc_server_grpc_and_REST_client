@@ -8,7 +8,6 @@ import (
 	"mime"
 	"net"
 	"net/http"
-	"strings"
 
 	oAPI "github.com/LogeshVel/grpc_server_grpc_and_REST_client/swagger"
 
@@ -67,21 +66,22 @@ func main() {
 	}
 
 	log.Println("Serving gRPC-Gateway on ", gwSocket)
-	go gwServer.ListenAndServe()
-	oa := getOpenAPIHandler()
-	swaggerServer := &http.Server{
-		Addr: swaggerSocket,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/api") {
-				gwmux.ServeHTTP(w, r)
-				return
-			}
-			oa.ServeHTTP(w, r)
-		}),
-	}
-	log.Println("Serving OpenAPI Doc at", swaggerSocket)
+	// go gwServer.ListenAndServe()
+	gwServer.ListenAndServe()
+	// oa := getOpenAPIHandler()
+	// swaggerServer := &http.Server{
+	// 	Addr: swaggerSocket,
+	// 	Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 		if strings.HasPrefix(r.URL.Path, "/api") {
+	// 			gwmux.ServeHTTP(w, r)
+	// 			return
+	// 		}
+	// 		oa.ServeHTTP(w, r)
+	// 	}),
+	// }
+	// log.Println("Serving OpenAPI Doc at", swaggerSocket)
 
-	swaggerServer.ListenAndServe()
+	// swaggerServer.ListenAndServe()
 
 }
 
@@ -99,6 +99,19 @@ func getOpenAPIHandler() http.Handler {
 
 func (s *Server) GetEmployee(ctx context.Context, empID *pb.EmployeeID) (*pb.Employee, error) {
 	log.Println("Hitted GetEmployee with the employee ID", empID.Id)
+	for _, e := range employeeList {
+		if e.Id == empID.Id {
+			return e, nil
+		}
+	}
+	return nil, status.Errorf(
+		codes.NotFound,
+		"Given employee ID is not found",
+	)
+}
+
+func (s *Server) GetEmployeeByQP(ctx context.Context, empID *pb.EmployeeID) (*pb.Employee, error) {
+	log.Println("Hitted GetEmployeeByQP with the employee ID", empID.Id)
 	for _, e := range employeeList {
 		if e.Id == empID.Id {
 			return e, nil
