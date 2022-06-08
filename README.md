@@ -57,7 +57,7 @@ To make the gRPC Server to serve both the gRPC and the REST clients we have do s
 
 #### Step - 1
 
-- Making annotations
+Making annotations
 
 To make the annotations for the rpc in the proto file we need to import the **"google/api/annotations.proto"** file. Unfortunately we have to manually import this file.
 
@@ -113,8 +113,6 @@ Make the Gateway server to Listen and Serve.
 Our grpc-proxy server is up and running. It will convert the gRPC to REST and vice versa.
 
 ### Swagger
-
-**Will revisit to complete the README for this**
 
 OpenAPI Swagger for the REST implementation can be created with some more little work.
 
@@ -184,18 +182,9 @@ var OpenAPI embed.FS
 
 ```
 
-Need to clone 2 repo.
+### JSON encoding for the FiledMask
 
-    1) for the annotation proto -  git clone https://github.com/grpc-ecosystem/grpc-gateway.git and then copy the protoc-gen-openapiv2 folder to our Project folder
-    2) for the UI codes - git clone https://github.com/swagger-api/swagger-ui.git and copy the contents of the dist folder into the OpenAPi folder and edit the swagger-intializer.js file to load our json file
-
-And install **protoc-gen-swagger** plugin to generate the swagger.json file from the proto file by annotation
-
-     go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
-
-
-
-The JSON encoding for the FiledMask is different than the encoding doe with the Programming languages
+The JSON encoding for the FiledMask is different than the encoding done with the Programming languages
 
 [Reference doc](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#json-encoding-of-field-masks)
 
@@ -209,7 +198,7 @@ The JSON encoding for the FiledMask is different than the encoding doe with the 
 
 ## This repo usage
 
-Need to document
+_Need to document_
 
 - run the Server
 
